@@ -1,0 +1,16 @@
+<launch>
+
+  <param name="use_sim_time" value="false" />
+
+  <!-- The move_base node -->
+  <include file="$(find simulation)/launch/fake_move_base.launch" />
+  
+  <!-- Run fake localization compatible with AMCL output -->
+  <node pkg="fake_localization" type="fake_localization" name="fake_amcl" output="screen" />
+
+  <!-- For fake localization we need a static transform between /odom and /map -->
+  <!--static_transform_publisher x y z yaw pitch roll frame_id child_frame_id period_in_ms -->
+  <!--static_transform_publisher x y z qx qy qz qw frame_id child_frame_id  period_in_ms-->
+  <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster" args="0 0 0 0 0 0 /map /odom 100" />
+
+</launch>

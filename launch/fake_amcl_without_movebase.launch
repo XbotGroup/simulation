@@ -1,0 +1,49 @@
+<launch>
+    <!-- Set the name of the map yaml file: can be overridden on the command line. -->
+    <arg name="map_path" default="$(find nav_staff)/map/"/>
+    <!--<arg name="map_file" default="5-12.yaml"/>-->
+    <arg name="map_file" default="001.yaml"/>
+    <arg name="frame_id" default="map"/>
+    <arg name="use_map_topic" default="/map"/>
+
+    <!-- Run the map server with the desired map -->
+    <node name="map_server" pkg="nav_staff" type="ReadMap.py" >
+        <param name="map_path"   value="$(arg map_path)"/>
+        <param name="map_file"   value="$(arg map_file)"/>
+        <param name="frame_id"   value="$(arg frame_id)"/>
+        <param name="use_map_topic"   value="$(arg use_map_topic)"/>
+    </node>
+
+    <arg name="obstacle_thread"         value="70" />
+    <arg name="root_topic"              value="/test_obstacles" />
+    <arg name="devergency_scale"        value="12" />
+    <arg name="use_plan_map_topic"      value="/cost_plan_map" />
+    <include file="$(find nav_staff)/launch/xml/cost_map.launch.xml">
+        <arg name="obstacle_thread"       value="$(arg obstacle_thread)"/>
+        <arg name="root_topic"            value="$(arg root_topic)"/>
+        <arg name="devergency_scale"      value="$(arg devergency_scale)"/>
+        <arg name="use_map_topic"         value="$(arg use_map_topic)"/>
+        <arg name="use_plan_map_topic"    value="$(arg use_plan_map_topic)"/>
+    </include>
+
+    <!-- Run fake localization compatible with AMCL output -->
+    <node pkg="fake_localization" type="fake_localization" name="fake_amcl" output="screen" />
+  
+    <!--amcl odom-->
+    <arg name="target_frame"               value="map"/>
+    <arg name="source_frame"               value="base_footprint"/>
+    <arg name="use_odom_topic"             value="robot_position_in_map"/>
+    <arg name="amclodom_frequence"         value="0.01" />
+    <include file="$(find amcl_odom)/launch/robot_position_in_map.launch">
+        <arg name="target_frame"                  value="$(arg target_frame)"/>
+        <arg name="source_frame"                  value="$(arg source_frame)"/>
+        <arg name="use_odom_topic"                value="$(arg use_odom_topic)"/>
+        <arg name="amclodom_frequence"            value="$(arg amclodom_frequence)" />
+    </include>
+
+    <!-- For fake localization we need a static transform between /odom and /map -->
+    <!--static_transform_publisher x y z yaw pitch roll frame_id child_frame_id period_in_ms -->
+    <!--static_transform_publisher x y z qx qy qz qw frame_id child_frame_id  period_in_ms-->
+    <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster" args="0 0 0 0 0 0 /map /odom 100" />
+
+</launch>
