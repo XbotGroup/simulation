@@ -25,7 +25,7 @@
     <arg name="source_frame"               value="base_footprint"/>
     <arg name="use_odom_topic"             value="robot_position_in_map"/>
     <arg name="amclodom_frequence"         value="0.01" />
-    <include file="$(find amcl_odom)/launch/robot_position_in_map.launch">
+    <include file="$(find nav_staff)/launch/robot_position_in_map.launch">
         <arg name="target_frame"                  value="$(arg target_frame)"/>
         <arg name="source_frame"                  value="$(arg source_frame)"/>
         <arg name="use_odom_topic"                value="$(arg use_odom_topic)"/>
